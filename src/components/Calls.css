@@ -6,6 +6,17 @@
   background-color: rgb(247, 247, 247);
 }
 
+.calls-pagination {
+  display: flex;
+  align-items: center;
+  list-style: none;
+  justify-content: center;
+}
+
+.calls-pagination-li {
+  margin: 0 5px;
+}
+
 .call-list-view {
   background-color: white;
   padding: 0 30px;

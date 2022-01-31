@@ -53,7 +53,6 @@ type CallListViewProps = {
 
 function Calls({ handleCallClick, calls, currentlyViewingCallId }: CallsProps) {
   const callsPerPage = 10;
-  // We start with an empty list of calls.
   const [currentCalls, setCurrentCalls] = useState<Call[]>([]);
   const [pageCount, setPageCount] = useState<number>(0);
   // Here we use item offsets; we could also use page offsets
@@ -63,28 +62,21 @@ function Calls({ handleCallClick, calls, currentlyViewingCallId }: CallsProps) {
   useEffect(() => {
     // Fetch calls from another resources.
     const endOffset = itemOffset + callsPerPage;
-    console.log(`Loading calls from ${itemOffset} to ${endOffset}`);
     setCurrentCalls(calls.slice(itemOffset, endOffset));
     setPageCount(Math.ceil(calls.length / callsPerPage));
-  }, [itemOffset, callsPerPage]);
+  }, [itemOffset, callsPerPage, calls]);
 
   // Invoke when user click to request another page.
   const handlePageClick = (event: any) => {
-    console.log('event:', event);
     const newOffset = (event.selected * callsPerPage) % calls.length;
-    console.log(
-      `User requested page number ${event.selected}, which is offset ${newOffset}`
-    );
     setCallOffset(newOffset);
   };
 
   return (
     <div className="calls-list">
-      <CallList
-        currentCalls={currentCalls}
-        handleCallClick={handleCallClick}
-        currentlyViewingCallId={currentlyViewingCallId} />
       <ReactPaginate
+        containerClassName="calls-pagination"
+        pageClassName="calls-pagination-li"
         breakLabel="..."
         nextLabel="next >"
         onPageChange={handlePageClick}
@@ -93,6 +85,10 @@ function Calls({ handleCallClick, calls, currentlyViewingCallId }: CallsProps) {
         previousLabel="< previous"
         renderOnZeroPageCount={() => null}
       />
+      <CallList
+        currentCalls={currentCalls}
+        handleCallClick={handleCallClick}
+        currentlyViewingCallId={currentlyViewingCallId} />
     </div>
   );
 }

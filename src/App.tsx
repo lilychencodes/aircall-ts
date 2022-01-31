@@ -24,11 +24,7 @@ const PUSHER_APP_CLUSTER = 'eu';
 interface AppProps {};
 interface AppState {
   currentlyViewingCall: Call | null;
-  calls: {
-    nodes: Call[];
-    totalCount: number;
-    hasNextPage: boolean;
-  }
+  calls: Call[];
 }
 
 type Auth = {
@@ -38,7 +34,7 @@ type Auth = {
 class App extends React.Component<AppProps, AppState> {
 
   private auth: Auth;
-  private pusher: Pusher;
+  // private pusher: Pusher;
 
   constructor(props: AppProps) {
     super(props);
@@ -47,10 +43,10 @@ class App extends React.Component<AppProps, AppState> {
       access_token: null
     };
 
-    this.pusher = this.createPusherAndSubscribe();
+    // this.pusher = this.createPusherAndSubscribe();
 
     this.state = {
-      calls: { nodes: [], totalCount: 0, hasNextPage: false },
+      calls: [],
       currentlyViewingCall: null,
     };
   }
@@ -70,7 +66,7 @@ class App extends React.Component<AppProps, AppState> {
   }
 
   componentWillUnmount() {
-    this.pusher.disconnect();
+    // this.pusher.disconnect();
   }
 
   createPusherAndSubscribe() {
@@ -117,7 +113,7 @@ class App extends React.Component<AppProps, AppState> {
     });
     const callsData = await response.json();
 
-    this.setState({ calls: callsData });
+    this.setState({ calls: callsData.nodes });
   }
 
   handleCallClick = (call: Call) => {
@@ -133,9 +129,22 @@ class App extends React.Component<AppProps, AppState> {
         Authorization: `Bearer ${this.auth.access_token}`
       }
     });
-    const data = await response.json();
+    const callData = await response.json();
 
-    console.log('archive call:', call.id, data);
+    const { calls } = this.state;
+
+    // NOTE: this is too inefficient to use for a real production application.
+    const idx = calls.findIndex((c) => c.id === call.id);
+
+    const newCalls = [
+      ...calls.slice(0, idx),
+      callData,
+      ...calls.slice(idx + 1),
+    ];
+
+    this.setState({
+      calls: newCalls, currentlyViewingCall: callData
+    });
   }
 
   render() {
@@ -145,7 +154,7 @@ class App extends React.Component<AppProps, AppState> {
       <Tractor injectStyle>
         <div className="calls-main-container">
           <Calls
-            calls={calls.nodes}
+            calls={calls}
             handleCallClick={this.handleCallClick}
             currentlyViewingCallId={currentlyViewingCall?.id}
           />
