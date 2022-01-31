@@ -45,6 +45,8 @@ function CallView({ call }: CallViewProps) {
   const durationInMs = parseInt(duration) * 1000;
   const callTime = humanizeDuration(durationInMs);
 
+  const grayText = 'rgb(112,116,121)';
+
   return (
     <div className="call-view-panel">
       <div className="call-view-header">
@@ -72,7 +74,7 @@ function CallView({ call }: CallViewProps) {
           <Typography
             textAlign="center"
             fontSize={12}
-            color="rgb(112,116,121)">
+            color={grayText}>
             Created on
           </Typography>
           <Typography fontWeight={400}>
@@ -83,7 +85,7 @@ function CallView({ call }: CallViewProps) {
           <Typography
             textAlign="center"
             fontSize={12}
-            color="rgb(112,116,121)">
+            color={grayText}>
             Lasted for
           </Typography>
           <Typography fontWeight={400}>{callTime}</Typography>
@@ -93,8 +95,8 @@ function CallView({ call }: CallViewProps) {
         Notes
       </Typography>
       <div className="call-notes">
-        {notes.length < 1 && <Typography>
-          No note create for this call
+        {notes.length < 1 && <Typography textAlign="center" color={grayText}>
+          No note created for this call
         </Typography>}
         {notes.map((note) => (
           <div className="call-note" key={note.id}>

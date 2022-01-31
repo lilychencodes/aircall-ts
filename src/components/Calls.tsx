@@ -29,16 +29,23 @@ export type Call = {
   notes: Note[];
 }
 
-interface CallsProps {
+type CallsProps = {
   calls: {
     nodes: Call[];
     hasNextPage: boolean;
     totalCount: number;
   };
+  currentlyViewingCallId?: string;
   handleCallClick: (call: Call) => void;
 }
 
-function Calls({ handleCallClick, calls }: CallsProps) {
+type CallListViewProps = {
+  call: Call;
+  handleCallClick: (call: Call) => void;
+  currentlyViewingCallId?: string;
+}
+
+function Calls({ handleCallClick, calls, currentlyViewingCallId }: CallsProps) {
 
   return (
     <div className="calls-list">
@@ -46,13 +53,14 @@ function Calls({ handleCallClick, calls }: CallsProps) {
         <CallListView
           key={call.id}
           call={call}
+          currentlyViewingCallId={currentlyViewingCallId}
           handleCallClick={handleCallClick} />
       ))}
     </div>
   );
 }
 
-function CallListView({ call, handleCallClick }: { call: Call; handleCallClick: (call: Call) => void }) {
+function CallListView({ call, handleCallClick, currentlyViewingCallId }: CallListViewProps) {
   const {
     call_type,
     created_at,
@@ -64,9 +72,12 @@ function CallListView({ call, handleCallClick }: { call: Call; handleCallClick: 
   } = call;
 
   const isOutbound = direction === 'outbound';
+  const isViewing = call.id === currentlyViewingCallId;
 
   return (
-    <div className="call-list-view" onClick={() => handleCallClick(call)}>
+    <div
+      className={`call-list-view ${isViewing && 'call-list-view-viewing'}`}
+      onClick={() => handleCallClick(call)}>
       <div className="call-info">
         <CallStatus
           status={call_type}
@@ -118,8 +129,12 @@ export function CallToFrom({ to, from, via, direction }: { to: string; from: str
 
   return (
     <div className="call-to-from">
-      <Typography fontWeight={500}>{topCallNumber}</Typography>
-      <Typography fontWeight={400} fontSize={12} color='rgb(112, 116, 121)'>{bottomCallNumber}</Typography>
+      <Typography fontWeight={500}>
+        {topCallNumber}
+      </Typography>
+      <Typography fontWeight={400} fontSize={12} color='rgb(112, 116, 121)'>
+        {bottomCallNumber}
+      </Typography>
       {via && <Typography fontWeight={400} fontSize={12} color='rgb(112, 116, 121)'>Via: {via}</Typography>}
     </div>
   );

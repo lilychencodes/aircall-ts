@@ -102,6 +102,7 @@ class App extends React.Component<AppProps, AppState> {
           <Calls
             calls={calls}
             handleCallClick={this.handleCallClick}
+            currentlyViewingCallId={currentlyViewingCall?.id}
           />
           <CallView
             call={currentlyViewingCall} />

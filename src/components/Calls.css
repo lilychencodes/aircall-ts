@@ -11,6 +11,10 @@
   padding: 0 30px;
 }
 
+.call-list-view-viewing {
+  background-color: rgb(201, 237, 228);
+}
+
 .call-info {
   padding: 15px 20px;
   border-bottom: 1px solid rgb(232, 232, 230);
