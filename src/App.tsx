@@ -1,5 +1,7 @@
 import React from 'react';
 import { Tractor } from '@aircall/tractor';
+import Pusher from 'pusher-js';
+import * as PusherTypes from 'pusher-js';
 
 import Calls from './components/Calls';
 import CallView from './components/CallView';
@@ -13,7 +15,11 @@ const ENDPOINTS = {
   auth: '/auth/login',
   calls: '/calls',
   refresh_token: '/auth/refresh-token-v2',
+  pusher: '/pusher/auth',
 }
+
+const PUSHER_APP_KEY = 'd44e3d910d38a928e0be';
+const PUSHER_APP_CLUSTER = 'eu';
 
 interface AppProps {};
 interface AppState {
@@ -32,6 +38,7 @@ type Auth = {
 class App extends React.Component<AppProps, AppState> {
 
   private auth: Auth;
+  private pusher: Pusher;
 
   constructor(props: AppProps) {
     super(props);
@@ -39,6 +46,8 @@ class App extends React.Component<AppProps, AppState> {
     this.auth = {
       access_token: null
     };
+
+    this.pusher = this.createPusherAndSubscribe();
 
     this.state = {
       calls: { nodes: [], totalCount: 0, hasNextPage: false },
@@ -58,6 +67,30 @@ class App extends React.Component<AppProps, AppState> {
       this.auth = { access_token: authData.access_token };
       this.fetchPhoneCalls();
     });
+  }
+
+  componentWillUnmount() {
+    this.pusher.disconnect();
+  }
+
+  createPusherAndSubscribe() {
+    const pusher = new Pusher(PUSHER_APP_KEY, {
+      authEndpoint: `${BASE_URL}${ENDPOINTS.pusher}`,
+      cluster: PUSHER_APP_CLUSTER
+    });
+
+    pusher.connection.bind( 'error', (error: any) => {
+      console.log('error binding pusher:', error);
+    });
+
+    const channel = pusher.subscribe('private-aircall');
+
+    console.log('channel:', channel)
+    channel.bind('update-call', (callData: Call) => {
+      console.log('Update call event received:', callData);
+    });
+
+    return pusher;
   }
 
   authenticate = async () => {
@@ -93,6 +126,18 @@ class App extends React.Component<AppProps, AppState> {
     });
   }
 
+  toggleArchiveCall = async (call: Call) => {
+    const response = await fetch(`${BASE_URL}${ENDPOINTS.calls}/${call.id}/archive`, {
+      method: 'PUT',
+      headers: {
+        Authorization: `Bearer ${this.auth.access_token}`
+      }
+    });
+    const data = await response.json();
+
+    console.log('archive call:', call.id, data);
+  }
+
   render() {
     const { calls, currentlyViewingCall } = this.state;
 
@@ -100,12 +145,13 @@ class App extends React.Component<AppProps, AppState> {
       <Tractor injectStyle>
         <div className="calls-main-container">
           <Calls
-            calls={calls}
+            calls={calls.nodes}
             handleCallClick={this.handleCallClick}
             currentlyViewingCallId={currentlyViewingCall?.id}
           />
           <CallView
-            call={currentlyViewingCall} />
+            call={currentlyViewingCall}
+            toggleArchiveCall={this.toggleArchiveCall} />
         </div>
       </Tractor>
     )

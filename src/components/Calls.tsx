@@ -1,3 +1,7 @@
+import React, { useEffect, useState } from 'react';
+import ReactDOM from 'react-dom';
+import ReactPaginate from 'react-paginate';
+
 import moment from 'moment';
 import {
   Typography,
@@ -30,13 +34,15 @@ export type Call = {
 }
 
 type CallsProps = {
-  calls: {
-    nodes: Call[];
-    hasNextPage: boolean;
-    totalCount: number;
-  };
+  calls: Call[];
   currentlyViewingCallId?: string;
   handleCallClick: (call: Call) => void;
+}
+
+type CallListProps = {
+  currentCalls: Call[];
+  handleCallClick: (call: Call) => void;
+  currentlyViewingCallId?: string;
 }
 
 type CallListViewProps = {
@@ -46,18 +52,63 @@ type CallListViewProps = {
 }
 
 function Calls({ handleCallClick, calls, currentlyViewingCallId }: CallsProps) {
+  const callsPerPage = 10;
+  // We start with an empty list of calls.
+  const [currentCalls, setCurrentCalls] = useState<Call[]>([]);
+  const [pageCount, setPageCount] = useState<number>(0);
+  // Here we use item offsets; we could also use page offsets
+  // following the API or data you're working with.
+  const [itemOffset, setCallOffset] = useState<number>(0);
+
+  useEffect(() => {
+    // Fetch calls from another resources.
+    const endOffset = itemOffset + callsPerPage;
+    console.log(`Loading calls from ${itemOffset} to ${endOffset}`);
+    setCurrentCalls(calls.slice(itemOffset, endOffset));
+    setPageCount(Math.ceil(calls.length / callsPerPage));
+  }, [itemOffset, callsPerPage]);
+
+  // Invoke when user click to request another page.
+  const handlePageClick = (event: any) => {
+    console.log('event:', event);
+    const newOffset = (event.selected * callsPerPage) % calls.length;
+    console.log(
+      `User requested page number ${event.selected}, which is offset ${newOffset}`
+    );
+    setCallOffset(newOffset);
+  };
 
   return (
     <div className="calls-list">
-      {calls.nodes.map((call) => (
+      <CallList
+        currentCalls={currentCalls}
+        handleCallClick={handleCallClick}
+        currentlyViewingCallId={currentlyViewingCallId} />
+      <ReactPaginate
+        breakLabel="..."
+        nextLabel="next >"
+        onPageChange={handlePageClick}
+        pageRangeDisplayed={5}
+        pageCount={pageCount}
+        previousLabel="< previous"
+        renderOnZeroPageCount={() => null}
+      />
+    </div>
+  );
+}
+
+function CallList({ currentCalls, handleCallClick, currentlyViewingCallId }: CallListProps) {
+  return (
+    <>
+      {currentCalls.map((call) => (
         <CallListView
           key={call.id}
           call={call}
-          currentlyViewingCallId={currentlyViewingCallId}
-          handleCallClick={handleCallClick} />
+          handleCallClick={handleCallClick}
+          currentlyViewingCallId={currentlyViewingCallId} />
       ))}
-    </div>
-  );
+    </>
+  )
 }
 
 function CallListView({ call, handleCallClick, currentlyViewingCallId }: CallListViewProps) {

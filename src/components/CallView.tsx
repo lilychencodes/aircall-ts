@@ -1,8 +1,11 @@
+import { useCallback } from 'react';
 import {
   Button,
+  IconButton,
   Typography,
   CallOutboundFilled,
   CallInboundFilled,
+  NotesOutlined,
 } from '@aircall/tractor';
 import moment from 'moment';
 
@@ -16,9 +19,17 @@ const humanizeDuration = require('humanize-duration');
 
 interface CallViewProps {
   call: Call | null;
+  toggleArchiveCall: (call: Call) => void;
 }
 
-function CallView({ call }: CallViewProps) {
+function CallView({ call, toggleArchiveCall }: CallViewProps) {
+  const toggleArchiveCb = useCallback(
+    (_event) => {
+      if (call) toggleArchiveCall(call);
+    },
+    [call, toggleArchiveCall],
+  );
+
   if (!call) {
     return (
       <div className="call-view-panel">
@@ -51,7 +62,7 @@ function CallView({ call }: CallViewProps) {
     <div className="call-view-panel">
       <div className="call-view-header">
         <div className="call-view-header-text">{textEl}</div>
-        <Button variant="destructive" mode="outline">
+        <Button variant="destructive" mode="outline" onClick={toggleArchiveCb}>
           {is_archived ? 'Unarchive' : 'Archive'}
         </Button>
       </div>
@@ -91,9 +102,18 @@ function CallView({ call }: CallViewProps) {
           <Typography fontWeight={400}>{callTime}</Typography>
         </div>
       </div>
-      <Typography textAlign="center" variant="subheading">
-        Notes
-      </Typography>
+      <div className="notes-container">
+        <Typography textAlign="center" variant="subheading">
+          Notes
+        </Typography>
+        {false && <div className="add-note-icon">
+          <IconButton
+            size={32}
+            component={NotesOutlined}
+            color="yellow.base"
+            onClick={() => {}} />
+        </div>}
+      </div>
       <div className="call-notes">
         {notes.length < 1 && <Typography textAlign="center" color={grayText}>
           No note created for this call
