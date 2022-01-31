@@ -1,0 +1,37 @@
+.call-view-panel {
+  flex: 1;
+  min-width: 400px;
+  padding: 40px 20px;
+  border-left: 1px solid rgb(204, 206, 207);
+}
+
+.call-view-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.calls-view-summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  margin: 20px 0 30px;
+}
+
+.call-notes {
+  margin-top: 10px;
+}
+
+.call-note {
+  border: 1px solid rgb(232, 232, 230);
+  border-radius: 5px;
+  padding: 10px 15px;
+  margin: 10px 0;
+  box-shadow: 2px 2px 2px rgb(232, 232, 230);
+}
+
+.call-time-stat {
+  padding: 10px 15px;
+  border: 1px solid rgb(232, 232, 230);
+  margin: 5px;
+}
