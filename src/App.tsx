@@ -144,6 +144,7 @@ class App extends React.Component<AppProps, AppState> {
     });
   }
 
+  // NOTE: this function is way too inefficient to use for a real production application.
   toggleArchiveCall = async (call: Call) => {
     const response = await fetch(`${BASE_URL}${ENDPOINTS.calls}/${call.id}/archive`, {
       method: 'PUT',
@@ -155,7 +156,6 @@ class App extends React.Component<AppProps, AppState> {
 
     const { calls } = this.state;
 
-    // NOTE: this is too inefficient to use for a real production application.
     const idx = calls.findIndex((c) => c.id === call.id);
 
     const newCalls = [
@@ -165,7 +165,8 @@ class App extends React.Component<AppProps, AppState> {
     ];
 
     this.setState({
-      calls: newCalls, currentlyViewingCall: callData
+      calls: newCalls, currentlyViewingCall: callData,
+      callsByDate: groupCallsByDate(newCalls),
     });
   }
 

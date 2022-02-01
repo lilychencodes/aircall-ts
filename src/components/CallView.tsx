@@ -53,7 +53,7 @@ function CallView({ call, toggleArchiveCall }: CallViewProps) {
   const textEl = is_archived ? (<Typography>This call is archived</Typography>) : null;
   const isOutbound = direction === 'outbound';
 
-  const durationInMs = parseInt(duration) * 1000;
+  const durationInMs = duration * 1000;
   const callTime = humanizeDuration(durationInMs);
 
   const grayText = COLORS.gray;

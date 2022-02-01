@@ -30,11 +30,11 @@ export type Call = {
   call_type: string;
   created_at: string;
   direction: string;
-  duration: string;
+  duration: number;
   from: string;
   to: string;
   via: string;
-  is_archived: string;
+  is_archived: boolean;
   notes: Note[];
 }
 

@@ -12,10 +12,16 @@ type FilterProps = {
   };
 }
 
-export function getCallsForFilter({ selectedDate, calls, callsByDate, filters, isGroupedByDate }: FilterProps) {
+export function getCallsForFilter({
+  selectedDate,
+  calls,
+  callsByDate,
+  filters,
+  isGroupedByDate,
+}: FilterProps) {
   const callsForDate = isGroupedByDate && selectedDate ? callsByDate[selectedDate] : calls;
 
-  const filteredCalls = callsForDate.filter((call) => {
+  const filteredCalls = (callsForDate || []).filter((call) => {
     if (filters.call_type && call.call_type !== filters.call_type) {
       return false;
     }
