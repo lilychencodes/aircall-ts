@@ -4,10 +4,10 @@ Project to Aircall's FE challenge: https://github.com/aircall/frontend-hiring-te
 ### Demo
 **Initial app load:**
 
-![image](https://user-images.githubusercontent.com/9043536/151911241-71a2b901-6495-415a-b2ce-6925be032ae1.png)
+![image](https://user-images.githubusercontent.com/9043536/151912727-e47e3c34-20ad-4011-bb8b-46aa85b16335.png)
 
 **You can group by date and other filters:**
-![image](https://user-images.githubusercontent.com/9043536/151911321-301bba5c-1cb4-4960-9a1a-602fe54ffec9.png)
+![image](https://user-images.githubusercontent.com/9043536/151912780-4a72b515-9ac9-4487-994c-5400fde953b7.png)
 
 ## To run the application
 
@@ -43,4 +43,6 @@ These are:
    The brute force solution of looping through the list of calls and make necessary changes is O(N). I'd change my data structure to make the update O(1).
    This most likely means storing a list of phone calls in an object keyed by call id.
 3. Use a better design to group calls by date. For this project, a list view is fine because there aren't that many different dates to filter.
+   In production, I'd look into a Calendar component to select date.
 4. Incorporate error handling in the UI. I'd add some UI to notify user of any api failures.
+5. I'd implement a system to fetch the next few pages of calls from the api once user reached the end of the pagination in the client.
