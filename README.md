@@ -34,8 +34,10 @@ NOTE: Handling of real-time events from user generated action is reflected by a 
 - [x] Use Typescript.
 - [x] Provide filtering feature. Provided ability to filter by call type and direction.
 
-## Improvements for a real production setting
-If this were a real application in production, I'd make a few adjustments.
+## Improvements for a more scalable setting
+Some design choices made on this project were based on the project scope.
+If I were building this application for production where the data volume is large, I'd make a few adjustments.
+
 These are:
 
 1. Use a Redux architecture to handle application state. Dispatch thunks to make api calls, which update the Redux store.
