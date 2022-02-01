@@ -11,7 +11,12 @@ import {
   WarningFilled,
   TickCircleFilled,
   WarningMarkOutlined,
+  PreferencesOutlined,
+  CalendarOutlined,
+  IconButton,
 } from '@aircall/tractor';
+
+import { COLORS } from '../constants';
 
 import './Calls.css';
 
@@ -37,6 +42,8 @@ type CallsProps = {
   calls: Call[];
   currentlyViewingCallId?: string;
   handleCallClick: (call: Call) => void;
+  toggleGroupByDate: () => void;
+  isGroupedByDate: boolean;
 }
 
 type CallListProps = {
@@ -51,7 +58,13 @@ type CallListViewProps = {
   currentlyViewingCallId?: string;
 }
 
-function Calls({ handleCallClick, calls, currentlyViewingCallId }: CallsProps) {
+function Calls({
+  handleCallClick,
+  calls,
+  currentlyViewingCallId,
+  toggleGroupByDate,
+  isGroupedByDate,
+}: CallsProps) {
   const callsPerPage = 10;
   const [currentCalls, setCurrentCalls] = useState<Call[]>([]);
   const [pageCount, setPageCount] = useState<number>(0);
@@ -73,23 +86,36 @@ function Calls({ handleCallClick, calls, currentlyViewingCallId }: CallsProps) {
   };
 
   return (
-    <div className="calls-list">
-      <ReactPaginate
-        containerClassName="calls-pagination"
-        pageClassName="calls-pagination-li"
-        breakLabel="..."
-        nextLabel="next >"
-        onPageChange={handlePageClick}
-        pageRangeDisplayed={5}
-        pageCount={pageCount}
-        previousLabel="< previous"
-        renderOnZeroPageCount={() => null}
-      />
-      <CallList
-        currentCalls={currentCalls}
-        handleCallClick={handleCallClick}
-        currentlyViewingCallId={currentlyViewingCallId} />
-    </div>
+    <>
+      <div className="calls-list">
+        <div className="calls-filters">
+          <div className={`calls-filter-date ${isGroupedByDate && 'calls-filter-date-selected'}`}>
+            <IconButton
+              onClick={toggleGroupByDate}
+              size={32}
+              component={CalendarOutlined}
+              discColor={COLORS.gray}
+              color={COLORS.yellow} />
+            </div>
+          <PreferencesOutlined color={COLORS.green} />
+        </div>
+        <ReactPaginate
+          containerClassName="calls-pagination"
+          pageClassName="calls-pagination-li"
+          breakLabel="..."
+          nextLabel="next >"
+          onPageChange={handlePageClick}
+          pageRangeDisplayed={5}
+          pageCount={pageCount}
+          previousLabel="< previous"
+          renderOnZeroPageCount={() => null}
+        />
+        <CallList
+          currentCalls={currentCalls}
+          handleCallClick={handleCallClick}
+          currentlyViewingCallId={currentlyViewingCallId} />
+      </div>
+    </>
   );
 }
 
@@ -147,16 +173,16 @@ export function CallStatus({ status, showText }: { status: string, showText: boo
   let statusEl;
   let statusColor;
   if (status === 'voicemail') {
-    statusColor = 'rgb(252, 187, 38)';
+    statusColor = COLORS.yellow;
     statusEl = <VoicemailOutlined color={statusColor} />;
   } else if (status === 'missed') {
-    statusColor = 'rgb(255, 92, 57)';
+    statusColor = COLORS.red;
     statusEl = <WarningFilled color={statusColor} />;
   } else if (status === 'answered') {
-    statusColor = 'rgb(0, 179, 136)';
+    statusColor = COLORS.green;
     statusEl = <TickCircleFilled color={statusColor} />;
   } else {
-    statusColor = 'rgb(252, 187, 38)';
+    statusColor = COLORS.yellow;
     statusEl = <WarningMarkOutlined color={statusColor} />;
   }
 
@@ -179,10 +205,10 @@ export function CallToFrom({ to, from, via, direction }: { to: string; from: str
       <Typography fontWeight={500}>
         {topCallNumber}
       </Typography>
-      <Typography fontWeight={400} fontSize={12} color='rgb(112, 116, 121)'>
+      <Typography fontWeight={400} fontSize={12} color={COLORS.gray}>
         {bottomCallNumber}
       </Typography>
-      {via && <Typography fontWeight={400} fontSize={12} color='rgb(112, 116, 121)'>Via: {via}</Typography>}
+      {via && <Typography fontWeight={400} fontSize={12} color={COLORS.gray}>Via: {via}</Typography>}
     </div>
   );
 }

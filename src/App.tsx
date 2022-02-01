@@ -5,8 +5,11 @@ import * as PusherTypes from 'pusher-js';
 
 import Calls from './components/Calls';
 import CallView from './components/CallView';
+import DateSelector from './components/DateSelector';
 
 import type { Call } from './components/Calls';
+
+import { groupCallsByDate } from './utilities/filter_calls';
 
 import './App.css';
 
@@ -25,6 +28,9 @@ interface AppProps {};
 interface AppState {
   currentlyViewingCall: Call | null;
   calls: Call[];
+  isGroupedByDate: boolean;
+  selectedDate: string | null;
+  callsByDate: { [key: string]: Call[] };
 }
 
 type Auth = {
@@ -48,6 +54,9 @@ class App extends React.Component<AppProps, AppState> {
     this.state = {
       calls: [],
       currentlyViewingCall: null,
+      isGroupedByDate: false,
+      selectedDate: null,
+      callsByDate: {},
     };
   }
 
@@ -113,7 +122,12 @@ class App extends React.Component<AppProps, AppState> {
     });
     const callsData = await response.json();
 
-    this.setState({ calls: callsData.nodes });
+    const callsByDate = groupCallsByDate(callsData.nodes);
+
+    this.setState({
+      calls: callsData.nodes,
+      callsByDate,
+    });
   }
 
   handleCallClick = (call: Call) => {
@@ -147,16 +161,45 @@ class App extends React.Component<AppProps, AppState> {
     });
   }
 
+  toggleGroupByDate = () => {
+    const { isGroupedByDate } = this.state;
+
+    this.setState({
+      isGroupedByDate: !isGroupedByDate
+    });
+  }
+
+  selectDate = (selectedDate: string) => {
+    this.setState({
+      selectedDate
+    });
+  }
+
   render() {
-    const { calls, currentlyViewingCall } = this.state;
+    const {
+      calls,
+      currentlyViewingCall,
+      isGroupedByDate,
+      selectedDate,
+      callsByDate,
+    } = this.state;
+
+    const callList = isGroupedByDate && selectedDate ? callsByDate[selectedDate] : calls;
+    const dates = Object.keys(callsByDate);
 
     return (
       <Tractor injectStyle>
         <div className="calls-main-container">
+          {isGroupedByDate && <DateSelector
+            dates={dates}
+            selectDate={this.selectDate}
+            selectedDate={selectedDate} />}
           <Calls
-            calls={calls}
+            calls={callList}
             handleCallClick={this.handleCallClick}
             currentlyViewingCallId={currentlyViewingCall?.id}
+            toggleGroupByDate={this.toggleGroupByDate}
+            isGroupedByDate={isGroupedByDate}
           />
           <CallView
             call={currentlyViewingCall}

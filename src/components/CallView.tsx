@@ -10,8 +10,8 @@ import {
 import moment from 'moment';
 
 import type { Call } from './Calls';
-
 import { CallStatus, CallToFrom } from './Calls';
+import { COLORS } from '../constants';
 
 import './CallView.css';
 
@@ -56,7 +56,7 @@ function CallView({ call, toggleArchiveCall }: CallViewProps) {
   const durationInMs = parseInt(duration) * 1000;
   const callTime = humanizeDuration(durationInMs);
 
-  const grayText = 'rgb(112,116,121)';
+  const grayText = COLORS.gray;
 
   return (
     <div className="call-view-panel">

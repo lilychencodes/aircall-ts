@@ -1,0 +1,18 @@
+.date-selector {
+  background-color: rgb(247, 247, 247); /* very light gray */
+  min-width: 100px;
+  padding-left: 25px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.date-item {
+  border-bottom: 1px solid rgb(232, 232, 230); /* light gray */
+  padding: 10px;
+}
+
+.date-item-selected {
+  background-color: rgb(201, 237, 228); /* light green */
+}
