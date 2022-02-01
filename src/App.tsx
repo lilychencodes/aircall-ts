@@ -9,7 +9,7 @@ import DateSelector from './components/DateSelector';
 
 import type { Call } from './components/Calls';
 
-import { groupCallsByDate } from './utilities/filter_calls';
+import { groupCallsByDate, getCallsForFilter } from './utilities/filter_calls';
 
 import './App.css';
 
@@ -31,6 +31,10 @@ interface AppState {
   isGroupedByDate: boolean;
   selectedDate: string | null;
   callsByDate: { [key: string]: Call[] };
+  filters: {
+    call_type?: string | null;
+    direction?: string | null;
+  };
 }
 
 type Auth = {
@@ -54,9 +58,13 @@ class App extends React.Component<AppProps, AppState> {
     this.state = {
       calls: [],
       currentlyViewingCall: null,
-      isGroupedByDate: false,
+      isGroupedByDate: true,
       selectedDate: null,
       callsByDate: {},
+      filters: {
+        call_type: null,
+        direction: null,
+      },
     };
   }
 
@@ -169,9 +177,36 @@ class App extends React.Component<AppProps, AppState> {
     });
   }
 
-  selectDate = (selectedDate: string) => {
+  selectDate = (date: string) => {
+    // if we're selecting the same, toggle filter off
+    const selectedDate = date === this.state.selectedDate ? null : date;
+
     this.setState({
       selectedDate
+    });
+  }
+
+  handleCallType = (callType: { value: string; label: string } | null) => {
+    const { filters } = this.state;
+
+    const newFilters = {
+      ...filters,
+      call_type: callType?.value,
+    }
+    this.setState({
+      filters: newFilters
+    });
+  }
+
+  handleCallDirection = (direction: { value: string; label: string } | null) => {
+    const { filters } = this.state;
+
+    const newFilters = {
+      ...filters,
+      direction: direction?.value,
+    }
+    this.setState({
+      filters: newFilters
     });
   }
 
@@ -182,9 +217,16 @@ class App extends React.Component<AppProps, AppState> {
       isGroupedByDate,
       selectedDate,
       callsByDate,
+      filters,
     } = this.state;
 
-    const callList = isGroupedByDate && selectedDate ? callsByDate[selectedDate] : calls;
+    const callList = getCallsForFilter({
+      selectedDate,
+      calls,
+      callsByDate,
+      filters,
+      isGroupedByDate
+    });
     const dates = Object.keys(callsByDate);
 
     return (
@@ -200,6 +242,8 @@ class App extends React.Component<AppProps, AppState> {
             currentlyViewingCallId={currentlyViewingCall?.id}
             toggleGroupByDate={this.toggleGroupByDate}
             isGroupedByDate={isGroupedByDate}
+            handleCallType={this.handleCallType}
+            handleCallDirection={this.handleCallDirection}
           />
           <CallView
             call={currentlyViewingCall}

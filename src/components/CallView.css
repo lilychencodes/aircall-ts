@@ -5,6 +5,12 @@
   border-left: 1px solid rgb(204, 206, 207);
 }
 
+.call-view-empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 .call-view-header {
   display: flex;
   justify-content: space-between;

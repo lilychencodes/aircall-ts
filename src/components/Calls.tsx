@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import ReactDOM from 'react-dom';
 import ReactPaginate from 'react-paginate';
+import Select from 'react-select';
 
 import moment from 'moment';
 import {
@@ -11,7 +12,6 @@ import {
   WarningFilled,
   TickCircleFilled,
   WarningMarkOutlined,
-  PreferencesOutlined,
   CalendarOutlined,
   IconButton,
 } from '@aircall/tractor';
@@ -44,6 +44,8 @@ type CallsProps = {
   handleCallClick: (call: Call) => void;
   toggleGroupByDate: () => void;
   isGroupedByDate: boolean;
+  handleCallType: (data: { value: string; label: string } | null) => void;
+  handleCallDirection: (data: { value: string; label: string } | null) => void;
 }
 
 type CallListProps = {
@@ -64,6 +66,8 @@ function Calls({
   currentlyViewingCallId,
   toggleGroupByDate,
   isGroupedByDate,
+  handleCallType,
+  handleCallDirection,
 }: CallsProps) {
   const callsPerPage = 10;
   const [currentCalls, setCurrentCalls] = useState<Call[]>([]);
@@ -85,6 +89,17 @@ function Calls({
     setCallOffset(newOffset);
   };
 
+  const callTypeOptions = [
+    { value: 'answered', label: 'Answered' },
+    { value: 'missed', label: 'Missed' },
+    { value: 'voicemail', label: 'Voicemail' },
+  ];
+
+  const callDirectionOptions = [
+    { value: 'inbound', label: 'Inbound' },
+    { value: 'outbound', label: 'Outbound' },
+  ];
+
   return (
     <>
       <div className="calls-list">
@@ -97,7 +112,18 @@ function Calls({
               discColor={COLORS.gray}
               color={COLORS.yellow} />
             </div>
-          <PreferencesOutlined color={COLORS.green} />
+            <Select
+              placeholder='Call type'
+              className='calls-select'
+              options={callTypeOptions}
+              isClearable={true}
+              onChange={handleCallType} />
+            <Select
+              placeholder='Direction'
+              className='calls-select'
+              options={callDirectionOptions}
+              isClearable={true}
+              onChange={handleCallDirection} />
         </div>
         <ReactPaginate
           containerClassName="calls-pagination"

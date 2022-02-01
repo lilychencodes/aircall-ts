@@ -2,9 +2,30 @@ import moment from 'moment';
 import type { Call } from '../components/Calls';
 
 type FilterProps = {
-  filterKey: 'call_type' | 'is_archived';
-  filterVal: string | boolean;
   calls: Call[];
+  callsByDate: { [key: string]: Call[] };
+  isGroupedByDate: boolean;
+  selectedDate: string | null;
+  filters: {
+    call_type?: string | null;
+    direction?: string | null;
+  };
+}
+
+export function getCallsForFilter({ selectedDate, calls, callsByDate, filters, isGroupedByDate }: FilterProps) {
+  const callsForDate = isGroupedByDate && selectedDate ? callsByDate[selectedDate] : calls;
+
+  const filteredCalls = callsForDate.filter((call) => {
+    if (filters.call_type && call.call_type !== filters.call_type) {
+      return false;
+    }
+    if (filters.direction && call.direction !== filters.direction) {
+      return false;
+    }
+    return true;
+  });
+
+  return filteredCalls;
 }
 
 export function groupCallsByDate(calls: Call[]) {
@@ -20,8 +41,4 @@ export function groupCallsByDate(calls: Call[]) {
   });
 
   return callsByDate;
-}
-
-export function filterCalls({ filterKey, filterVal, calls }: FilterProps) {
-  return calls.filter((call) => call[filterKey] === filterVal);
 }

@@ -32,8 +32,8 @@ function CallView({ call, toggleArchiveCall }: CallViewProps) {
 
   if (!call) {
     return (
-      <div className="call-view-panel">
-        <Typography>Not currently viewing any call</Typography>
+      <div className="call-view-panel call-view-empty">
+        <Typography color={COLORS.gray}>Click on a call to view its information!</Typography>
       </div>
     )
   }
