@@ -72,18 +72,24 @@ function Calls({
   const callsPerPage = 10;
   const [currentCalls, setCurrentCalls] = useState<Call[]>([]);
   const [pageCount, setPageCount] = useState<number>(0);
-  // Here we use item offsets; we could also use page offsets
-  // following the API or data you're working with.
+
   const [itemOffset, setCallOffset] = useState<number>(0);
 
   useEffect(() => {
-    // Fetch calls from another resources.
-    const endOffset = itemOffset + callsPerPage;
-    setCurrentCalls(calls.slice(itemOffset, endOffset));
+    // need to reset offset when props (like filters change).
+    // Otherwise, selecting on a page and then selecting a filter will return 0 item
+    let offset = itemOffset;
+    const endOffset = offset + callsPerPage;
+
+    if (offset > calls.length) {
+      offset = 0;
+      setCallOffset(offset);
+    }
+
+    setCurrentCalls(calls.slice(offset, endOffset));
     setPageCount(Math.ceil(calls.length / callsPerPage));
   }, [itemOffset, callsPerPage, calls]);
 
-  // Invoke when user click to request another page.
   const handlePageClick = (event: any) => {
     const newOffset = (event.selected * callsPerPage) % calls.length;
     setCallOffset(newOffset);
