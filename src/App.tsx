@@ -10,6 +10,7 @@ import DateSelector from './components/DateSelector';
 import type { Call } from './components/Calls';
 
 import { groupCallsByDate, getCallsForFilter } from './utilities/filter_calls';
+import callApi from './utilities/request';
 
 import './App.css';
 
@@ -19,6 +20,7 @@ const ENDPOINTS = {
   calls: '/calls',
   refresh_token: '/auth/refresh-token-v2',
   pusher: '/pusher/auth',
+  me: '/me',
 }
 
 const PUSHER_APP_KEY = 'd44e3d910d38a928e0be';
@@ -38,22 +40,24 @@ interface AppState {
 }
 
 type Auth = {
-  access_token: string | null;
+  access_token: string;
 };
 
 class App extends React.Component<AppProps, AppState> {
 
   private auth: Auth;
   private pusher: Pusher | null;
+  private handleStateChangeManually: boolean;
 
   constructor(props: AppProps) {
     super(props);
 
     this.auth = {
-      access_token: null
+      access_token: ''
     };
 
     this.pusher = null;
+    this.handleStateChangeManually = false;
 
     this.state = {
       calls: [],
@@ -70,13 +74,12 @@ class App extends React.Component<AppProps, AppState> {
 
   componentDidMount() {
     this.authenticate().then(async (auth) => {
-      const response = await fetch(`${BASE_URL}${ENDPOINTS.refresh_token}`, {
+      const authData = await callApi({
+        url: `${BASE_URL}${ENDPOINTS.refresh_token}`,
+        token: auth.refresh_token,
         method: 'POST',
-        headers: {
-          Authorization: `Bearer ${auth.refresh_token}`
-        }
       });
-      const authData = await response.json();
+
       this.auth = { access_token: authData.access_token };
       this.fetchPhoneCalls();
       this.createPusherAndSubscribe();
@@ -95,19 +98,18 @@ class App extends React.Component<AppProps, AppState> {
         headers: {
           Authorization: `Bearer ${this.auth.access_token}`,
         },
-      },
+      }
     });
 
     pusher.connection.bind( 'error', (error: any) => {
       console.log('error binding pusher:', error);
+      this.handleStateChangeManually = true;
     });
 
     const channel = pusher.subscribe('private-aircall');
 
     channel.bind('update-call', (callData: Call) => {
-      console.log('Update call event received:', callData);
-
-      // this.updateCallsState(callData);
+      this.updateCallsState(callData);
     });
 
     this.pusher = pusher;
@@ -120,24 +122,23 @@ class App extends React.Component<AppProps, AppState> {
       username: 'lily',
       password: '123',
     };
-    const response = await fetch(`${BASE_URL}${ENDPOINTS.auth}`, {
+
+    const auth = await callApi({
+      url: `${BASE_URL}${ENDPOINTS.auth}`,
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(creds),
+      body: creds,
+      headers: { 'Content-Type': 'application/json' },
     });
-    const auth = await response.json();
+
     return auth;
   }
 
   fetchPhoneCalls = async () => {
-    const response = await fetch(`${BASE_URL}${ENDPOINTS.calls}?limit=200`, {
-      headers: {
-        Authorization: `Bearer ${this.auth.access_token}`
-      }
+    const callsData = await callApi({
+      url: `${BASE_URL}${ENDPOINTS.calls}?limit=200`,
+      token: this.auth.access_token,
+      method: 'GET',
     });
-    const callsData = await response.json();
 
     const callsByDate = groupCallsByDate(callsData.nodes);
 
@@ -171,29 +172,25 @@ class App extends React.Component<AppProps, AppState> {
   }
 
   toggleArchiveCall = async (call: Call) => {
-    const response = await fetch(`${BASE_URL}${ENDPOINTS.calls}/${call.id}/archive`, {
+    const callData = await callApi({
+      url: `${BASE_URL}${ENDPOINTS.calls}/${call.id}/archive`,
+      token: this.auth.access_token,
       method: 'PUT',
-      headers: {
-        Authorization: `Bearer ${this.auth.access_token}`
-      }
     });
 
-    const callData = await response.json();
-    this.updateCallsState(callData);
+    if (this.handleStateChangeManually) this.updateCallsState(callData);
   }
 
   addNote = async (content: string, callId: string) => {
-    const response = await fetch(`${BASE_URL}${ENDPOINTS.calls}/${callId}/note`, {
+    const callData = await callApi({
+      url: `${BASE_URL}${ENDPOINTS.calls}/${callId}/note`,
+      token: this.auth.access_token,
       method: 'POST',
-      headers: {
-        Authorization: `Bearer ${this.auth.access_token}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ content }),
+      body: { content },
+      headers: { 'Content-Type': 'application/json' },
     });
 
-    const callData = await response.json();
-    this.updateCallsState(callData);
+    if (this.handleStateChangeManually) this.updateCallsState(callData);
   }
 
   toggleGroupByDate = () => {
