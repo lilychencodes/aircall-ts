@@ -7,7 +7,7 @@ Project to Aircall's FE challenge: https://github.com/aircall/frontend-hiring-te
 ![image](https://user-images.githubusercontent.com/9043536/151912727-e47e3c34-20ad-4011-bb8b-46aa85b16335.png)
 
 **You can group by date and other filters:**
-![image](https://user-images.githubusercontent.com/9043536/151912780-4a72b515-9ac9-4487-994c-5400fde953b7.png)
+![image](https://user-images.githubusercontent.com/9043536/151916876-d88d9f88-3bde-43fc-a74b-079ee8bfc24c.png)
 
 ## To run the application
 
