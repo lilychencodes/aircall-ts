@@ -44,7 +44,7 @@ type Auth = {
 class App extends React.Component<AppProps, AppState> {
 
   private auth: Auth;
-  private pusher: Pusher;
+  private pusher: Pusher | null;
 
   constructor(props: AppProps) {
     super(props);
@@ -53,7 +53,7 @@ class App extends React.Component<AppProps, AppState> {
       access_token: null
     };
 
-    this.pusher = this.createPusherAndSubscribe();
+    this.pusher = null;
 
     this.state = {
       calls: [],
@@ -79,17 +79,23 @@ class App extends React.Component<AppProps, AppState> {
       const authData = await response.json();
       this.auth = { access_token: authData.access_token };
       this.fetchPhoneCalls();
+      this.createPusherAndSubscribe();
     });
   }
 
   componentWillUnmount() {
-    this.pusher.disconnect();
+    this.pusher?.disconnect();
   }
 
   createPusherAndSubscribe() {
     const pusher = new Pusher(PUSHER_APP_KEY, {
       authEndpoint: `${BASE_URL}${ENDPOINTS.pusher}`,
-      cluster: PUSHER_APP_CLUSTER
+      cluster: PUSHER_APP_CLUSTER,
+      auth: {
+        headers: {
+          Authorization: `Bearer ${this.auth.access_token}`,
+        },
+      },
     });
 
     pusher.connection.bind( 'error', (error: any) => {
@@ -98,10 +104,13 @@ class App extends React.Component<AppProps, AppState> {
 
     const channel = pusher.subscribe('private-aircall');
 
-    console.log('channel:', channel)
     channel.bind('update-call', (callData: Call) => {
       console.log('Update call event received:', callData);
+
+      // this.updateCallsState(callData);
     });
+
+    this.pusher = pusher;
 
     return pusher;
   }
@@ -138,25 +147,10 @@ class App extends React.Component<AppProps, AppState> {
     });
   }
 
-  handleCallClick = (call: Call) => {
-    this.setState({
-      currentlyViewingCall: call
-    });
-  }
-
-  // NOTE: this function is way too inefficient to use for a real production application.
-  toggleArchiveCall = async (call: Call) => {
-    const response = await fetch(`${BASE_URL}${ENDPOINTS.calls}/${call.id}/archive`, {
-      method: 'PUT',
-      headers: {
-        Authorization: `Bearer ${this.auth.access_token}`
-      }
-    });
-    const callData = await response.json();
-
+  updateCallsState(callData: Call) {
     const { calls } = this.state;
 
-    const idx = calls.findIndex((c) => c.id === call.id);
+    const idx = calls.findIndex((c) => c.id === callData.id);
 
     const newCalls = [
       ...calls.slice(0, idx),
@@ -170,7 +164,24 @@ class App extends React.Component<AppProps, AppState> {
     });
   }
 
-  // This method, like toggleArchiveCall, needs to be optimized in real life
+  handleCallClick = (call: Call) => {
+    this.setState({
+      currentlyViewingCall: call
+    });
+  }
+
+  toggleArchiveCall = async (call: Call) => {
+    const response = await fetch(`${BASE_URL}${ENDPOINTS.calls}/${call.id}/archive`, {
+      method: 'PUT',
+      headers: {
+        Authorization: `Bearer ${this.auth.access_token}`
+      }
+    });
+
+    const callData = await response.json();
+    this.updateCallsState(callData);
+  }
+
   addNote = async (content: string, callId: string) => {
     const response = await fetch(`${BASE_URL}${ENDPOINTS.calls}/${callId}/note`, {
       method: 'POST',
@@ -182,21 +193,7 @@ class App extends React.Component<AppProps, AppState> {
     });
 
     const callData = await response.json();
-
-    const { calls } = this.state;
-
-    const idx = calls.findIndex((c) => c.id === callId);
-
-    const newCalls = [
-      ...calls.slice(0, idx),
-      callData,
-      ...calls.slice(idx + 1),
-    ];
-
-    this.setState({
-      calls: newCalls, currentlyViewingCall: callData,
-      callsByDate: groupCallsByDate(newCalls),
-    });
+    this.updateCallsState(callData);
   }
 
   toggleGroupByDate = () => {
