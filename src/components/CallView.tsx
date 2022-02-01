@@ -11,6 +11,8 @@ import moment from 'moment';
 
 import type { Call } from './Calls';
 import { CallStatus, CallToFrom } from './Calls';
+import NoteTextArea from './NoteTextArea';
+
 import { COLORS } from '../constants';
 
 import './CallView.css';
@@ -20,9 +22,10 @@ const humanizeDuration = require('humanize-duration');
 interface CallViewProps {
   call: Call | null;
   toggleArchiveCall: (call: Call) => void;
+  addNote: (content: string, callId: string) => void;
 }
 
-function CallView({ call, toggleArchiveCall }: CallViewProps) {
+function CallView({ call, toggleArchiveCall, addNote }: CallViewProps) {
   const toggleArchiveCb = useCallback(
     (_event) => {
       if (call) toggleArchiveCall(call);
@@ -39,6 +42,7 @@ function CallView({ call, toggleArchiveCall }: CallViewProps) {
   }
 
   const {
+    id,
     call_type,
     created_at,
     direction,
@@ -106,13 +110,6 @@ function CallView({ call, toggleArchiveCall }: CallViewProps) {
         <Typography textAlign="center" variant="subheading">
           Notes
         </Typography>
-        {false && <div className="add-note-icon">
-          <IconButton
-            size={32}
-            component={NotesOutlined}
-            color="yellow.base"
-            onClick={() => {}} />
-        </div>}
       </div>
       <div className="call-notes">
         {notes.length < 1 && <Typography textAlign="center" color={grayText}>
@@ -124,6 +121,9 @@ function CallView({ call, toggleArchiveCall }: CallViewProps) {
           </div>
         ))}
       </div>
+      <NoteTextArea
+        callId={id}
+        onSubmit={addNote} />
     </div>
   )
 }

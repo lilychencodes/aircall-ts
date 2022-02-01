@@ -186,7 +186,7 @@ function CallListView({ call, handleCallClick, currentlyViewingCallId }: CallLis
           to={to}
           direction={direction} />
         <Typography fontWeight={400}>
-          {moment(created_at).format('MMMM Do YYYY, h:mm:ss a')}
+          {moment(created_at).format('MMMM Do YYYY')}
         </Typography>
         {isOutbound ? <CallOutboundFilled /> : <CallInboundFilled />}
         {is_archived && <div className="archived">archived</div>}

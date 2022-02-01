@@ -21,7 +21,7 @@ function DateSelector({ selectDate, dates, selectedDate }: DateSelectorProps) {
             key={date}
             className={`date-item ${isSelected && 'date-item-selected'}`}
             onClick={() => selectDate(date)}>
-            {moment(date).format('DD MM YY')}
+            {moment(date).format('DD/MM/YY')}
           </div>
         )
       })}

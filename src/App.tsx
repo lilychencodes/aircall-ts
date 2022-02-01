@@ -44,7 +44,7 @@ type Auth = {
 class App extends React.Component<AppProps, AppState> {
 
   private auth: Auth;
-  // private pusher: Pusher;
+  private pusher: Pusher;
 
   constructor(props: AppProps) {
     super(props);
@@ -53,7 +53,7 @@ class App extends React.Component<AppProps, AppState> {
       access_token: null
     };
 
-    // this.pusher = this.createPusherAndSubscribe();
+    this.pusher = this.createPusherAndSubscribe();
 
     this.state = {
       calls: [],
@@ -83,7 +83,7 @@ class App extends React.Component<AppProps, AppState> {
   }
 
   componentWillUnmount() {
-    // this.pusher.disconnect();
+    this.pusher.disconnect();
   }
 
   createPusherAndSubscribe() {
@@ -157,6 +157,35 @@ class App extends React.Component<AppProps, AppState> {
     const { calls } = this.state;
 
     const idx = calls.findIndex((c) => c.id === call.id);
+
+    const newCalls = [
+      ...calls.slice(0, idx),
+      callData,
+      ...calls.slice(idx + 1),
+    ];
+
+    this.setState({
+      calls: newCalls, currentlyViewingCall: callData,
+      callsByDate: groupCallsByDate(newCalls),
+    });
+  }
+
+  // This method, like toggleArchiveCall, needs to be optimized in real life
+  addNote = async (content: string, callId: string) => {
+    const response = await fetch(`${BASE_URL}${ENDPOINTS.calls}/${callId}/note`, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${this.auth.access_token}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ content }),
+    });
+
+    const callData = await response.json();
+
+    const { calls } = this.state;
+
+    const idx = calls.findIndex((c) => c.id === callId);
 
     const newCalls = [
       ...calls.slice(0, idx),
@@ -248,7 +277,8 @@ class App extends React.Component<AppProps, AppState> {
           />
           <CallView
             call={currentlyViewingCall}
-            toggleArchiveCall={this.toggleArchiveCall} />
+            toggleArchiveCall={this.toggleArchiveCall}
+            addNote={this.addNote} />
         </div>
       </Tractor>
     )
