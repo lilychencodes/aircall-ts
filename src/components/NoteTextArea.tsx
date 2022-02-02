@@ -15,7 +15,7 @@ function TextArea({ onSubmit, callId }: TextAreaProps) {
     (event) => {
       setTextValue(event.target.value);
     },
-    [content],
+    [],
   );
 
   const addNote = useCallback(

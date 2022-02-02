@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import ReactDOM from 'react-dom';
 import ReactPaginate from 'react-paginate';
 import Select from 'react-select';
 
@@ -170,7 +169,6 @@ function CallListView({ call, handleCallClick, currentlyViewingCallId }: CallLis
     call_type,
     created_at,
     direction,
-    duration,
     from,
     to,
     is_archived,

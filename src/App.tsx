@@ -1,7 +1,6 @@
 import React from 'react';
 import { Tractor } from '@aircall/tractor';
 import Pusher from 'pusher-js';
-import * as PusherTypes from 'pusher-js';
 
 import Calls from './components/Calls';
 import CallView from './components/CallView';

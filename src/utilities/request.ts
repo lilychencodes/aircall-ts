@@ -7,13 +7,13 @@ type ApiProps = {
 }
 
 type ApiParams = {
-  url: string;
-  headers: { [key: string]: string };
+  method: string;
+  headers?: { [key: string]: string };
   body?: string;
 }
 
 async function callApi({ url, token, method, body, headers }: ApiProps) {
-  const params = { url, method } as any;
+  const params = { method } as ApiParams;
 
   if (token) {
     params.headers = { Authorization: `Bearer ${token}` };
@@ -29,6 +29,7 @@ async function callApi({ url, token, method, body, headers }: ApiProps) {
   }
 
   const response = await fetch(url, params);
+
   const data = await response.json();
 
   return data;

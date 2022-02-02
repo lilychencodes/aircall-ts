@@ -1,11 +1,9 @@
 import { useCallback } from 'react';
 import {
   Button,
-  IconButton,
   Typography,
   CallOutboundFilled,
   CallInboundFilled,
-  NotesOutlined,
 } from '@aircall/tractor';
 import moment from 'moment';
 
