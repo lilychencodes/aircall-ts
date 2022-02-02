@@ -28,15 +28,13 @@ Project to Aircall's FE challenge: https://github.com/aircall/frontend-hiring-te
 - [x] Group calls by date.
 - [x] Handle real-time events (Whenever a call is archived or a note is being added to a call, these changes should be reflected on the UI immediately).
 
-NOTE: Handling of real-time events from user generated action is reflected by a state change.
-
 #### Bonus:
 - [x] Use Typescript.
 - [x] Provide filtering feature. Provided ability to filter by call type and direction.
 
 ## Improvements for a more scalable setting
-Some design choices made on this project were based on the project scope.
-If I were building this application for production where the data volume is large, I'd make a few adjustments.
+Some design choices made on this project were based on the project scope and limited time.
+If I had more time, and if I were building this application for production where the data volume is large, I'd make a few adjustments.
 
 These are:
 
@@ -47,4 +45,7 @@ These are:
 3. Use a better design to group calls by date. For this project, a list view is fine because there aren't that many different dates to filter.
    In production, I'd look into a Calendar component to select date.
 4. Incorporate error handling in the UI. I'd add some UI to notify user of any api failures.
-5. I'd implement a system to fetch the next few pages of calls from the api once user reached the end of the pagination in the client.
+5. I'd implement a system to fetch the next few pages of calls from the api once user reached the end of the pagination in the client. Since the limit never goes above 200 for this project, I manually set the limit and only fetch once.
+6. I'd go back and clean up the code more:
+  - [ ] refactor components into different files
+  - [ ] add more tests for the components
